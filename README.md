@@ -18,15 +18,26 @@
 
 如果你的代理只对 `claude.ai` 做了精确域名分流，也可以展开页面里的「手动核验 `claude.ai` 出口」，粘贴 `https://claude.ai/cdn-cgi/trace` 的内容完成校准。
 
+## 终端 / Claude Code 一行自检
+
+如果使用 Claude Code CLI 或需要在终端核验代理链路，可直接运行零依赖的 Bash 自检脚本（macOS / Linux / WSL 通用）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gm365/ClaudeCheck/main/scripts/check.sh | bash
+```
+
+支持传入 `--strict` 参数（检出高风险时返回非 0 退出码）：实测 `claude.ai/cdn-cgi/trace` 真实出口、机房/住宅 ASN、递归 DNS 泄露、Anthropic 核心域名真实 HTTP 状态码与延迟、终端代理环境变量及本机时区匹配。
+
 ## 检测项一览
 
 采用**双维度独立计分（0–100，越低越安全）**，网络链路与本机环境互不混淆：
 
 - **网络与代理风险（权重 100）**
-  - 出口地区核对（权重 40）：识别是否位于 Anthropic 受限地区
-  - IP 类型与纯净度（权重 30）：区分住宅宽带、云机房托管段（内置常见云/IDC ASN 与组织库交叉判定）及公开代理/滥用段
-  - WebRTC 公网地址泄露（权重 18）：自动过滤 RFC 1918 内网段与 Clash/Mihomo Fake-IP（`198.18.0.0/15`）
-  - Claude 域名连通性（权重 12）：实测 `claude.ai`、`api.anthropic.com`、`www.anthropic.com` 延迟
+  - 出口地区核对（权重 35）：识别是否位于 Anthropic 受限地区
+  - IP 类型与纯净度（权重 25）：区分住宅宽带、云机房托管段（内置常见云/IDC/Tier-1 骨干网/VPS ASN 与住宅白名单交叉判定）及公开代理/滥用段
+  - WebRTC 公网地址泄露（权重 16）：自动过滤 RFC 1918 内网段与 Clash/Mihomo Fake-IP（`198.18.0.0/15`）
+  - DNS 泄露检测（权重 14）：通过随机子域探针（`bash.ws` 主源 + `edns.ip-api.com` 降级）识别递归 DNS 解析器归属地，排查本地宽带 DNS 泄露
+  - Claude 域名连通性（权重 10）：实测 `claude.ai`、`api.anthropic.com`、`www.anthropic.com` 延迟
   - 出口对比视图：对照同源边缘与通用海外出口，定位分流不一致
 - **本地指纹风险（权重 100）**
   - 出口与本机时区精确对照（权重 28）：按实时 UTC 偏移核对，区分跨大区错位与邻区 1 小时差
@@ -66,6 +77,8 @@ npm run deploy   # 构建并部署到你自己的 Cloudflare 账号
 ├── wrangler.jsonc        # Cloudflare Workers Static Assets 配置（run_worker_first: ["/api/env-check"]）
 ├── worker/
 │   └── index.js          # /api/env-check 边缘探针 + 静态资源透传
+├── scripts/
+│   └── check.sh          # 终端 / Claude Code 一行自检脚本
 ├── src/
 │   ├── App.svelte        # 应用外壳与亮/暗主题切换
 │   ├── app.css           # 独立设计令牌（零外部 CSS 框架依赖）

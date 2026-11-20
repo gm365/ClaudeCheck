@@ -31,38 +31,111 @@ export const CN_TIMEZONES = new Set([
 export const UTC8_SAFE_COUNTRIES = new Set(["SG", "TW", "MY", "PH", "AU", "BN", "MN"]);
 
 export const DATACENTER_ASNS = new Set([
-  16509, 14618,
-  15169, 396982,
-  8075,
-  13335,
-  14061,
-  20473,
-  63949,
-  24940,
-  16276,
-  31898,
-  45102, 37963,
-  132203, 45090,
-  21859, 40065,
-  906,
-  25820,
-  9009,
-  212238,
-  60781, 28753,
-  51167,
-  199524,
-  147049,
-  40676,
-  46844,
-  8100,
-  53667,
-  36352,
-  20940,
-  60068,
+  // 国际与国内主流云厂商 / CDN
+  16509, 14618, 8987, // AWS
+  15169, 396982, // Google Cloud
+  8075, 8068, // Microsoft Azure
+  13335, 209242, // Cloudflare
+  54113, // Fastly
+  20940, 16625, 63949, // Akamai / Linode
+  14061, // DigitalOcean
+  20473, // Vultr / Choopa
+  24940, 213230, // Hetzner
+  16276, // OVH
+  31898, // Oracle Cloud
+  36351, // IBM Cloud / SoftLayer
+  45102, 37963, 24429, // Alibaba Cloud
+  132203, 45090, 132591, // Tencent Cloud
+  136907, 55990, 139080, // Huawei Cloud
+  138699, 396986, // ByteDance / Volcano Engine
+  135377, // UCloud
+  38365, 55967, // Baidu Cloud
+  59019, // Kingsoft Cloud
+
+  // Tier-1 国际骨干网 / Transit（无普通家宽，机场与 VPS 高频上游）
+  2914, 4714, 9268, // NTT Global / NTT America / NTT PC（不含日本家宽 OCN 4713 与 Docomo 9605）
+  174, // Cogent
+  6939, // Hurricane Electric (HE.net)
+  3257, // GTT Communications
+  1299, // Arelion (Telia Carrier / Twelve99)
+  3356, // Lumen / Level 3
+  6461, // Zayo / AboveNet
+  6453, // Tata Communications
+  3491, // PCCW Global（不含香港 HKT 家宽 4760）
+  4637, // Telstra Global（不含澳洲本土 Telstra 1221）
+  9002, // RETN
+  137409, // GSL Networks
+
+  // 亚太与欧美高频 VPS / 机场落地 IDC / 托管商
+  21859, 40065, // Zenlayer
+  906, 54574, // DMIT
+  25820, // IT7 / Bandwagon
+  3214, 4842, 6233, 9312, // xTom / V.PS
+  917, 57695, // Misaka Network
+  138997, 141995, // Akari Networks / Nearoute
+  139317, 44735, // Kirino
+  136766, // RFCHOST / Jinx
+  7684, 9370, // Sakura Internet（樱花机房）
+  7506, // GMO Internet / ConoHa
+  18077, // Kagoya Japan
+  131965, // Xserver
+  136800, // LayerStack
+  55933, // Cloudie / Dataplugs
+  9009, // M247
+  212238, 60068, // DataCamp / CDN77
+  60781, 28753, 16265, 60626, // LeaseWeb
+  51167, 40021, // Contabo / CeraNetworks
+  199524, // GCore
+  147049, // Packethub
+  40676, // Psychz
+  46844, // Sharktech
+  8100, // QuadraNet
+  53667, // FranTech / BuyVM
+  36352, // ColoCrossing
+  35916, // Multacom
+  29802, // Hivelocity
+  3223, // Voxility
+  50673, // Serverius
+  49981, // WorldStream
+  62240, // Clouvider
+  12876, // Scaleway / Online S.A.S
+  8560, // IONOS / 1&1
+  47583, // Hostinger
+  36007, // Kamatera
+  202053, // UpCloud
+  54825, // Equinix Metal (Packet)
+  16552, 396356, // Latitude.sh (Maxihost)
+  399646,
+
+  // 商业 VPN / 代理底座专用 ASN
+  136787, // Tefincom (NordVPN)
+  51852, // Private Layer
+  46562, // Performive / Total Server Solutions
+  39351, // 31173 Services (Mullvad)
+  11878, // Tzulo
+  36236, // NetActuate
+]);
+
+// 主流本土家庭宽带 / 移动网络 ASN 白名单：防止母公司名称（如日本 OCN AS4713 挂在 NTT Communications 名下）被组织名正则误伤
+export const RESIDENTIAL_ISP_ASNS = new Set([
+  4713, // 日本 OCN (NTT Communications 本土家宽)
+  9605, // 日本 NTT Docomo
+  2516, // 日本 KDDI
+  17676, // 日本 SoftBank
+  4760, // 香港 HKT / PCCW 家宽
+  9269, // 香港 HKBN
+  1221, // 澳洲 Telstra 本土家宽
+  3462, // 台湾 中华电信 HiNet
+  4780, // 台湾 远传电信
+  9924, // 台湾 台湾大哥大
+  7922, // 美国 Comcast
+  7018, // 美国 AT&T
+  701, 22394, // 美国 Verizon
+  20115, // 美国 Charter / Spectrum
 ]);
 
 export const DATACENTER_ORG_RE =
-  /Zenlayer|SpeedyCloud|Amazon|AWS|Google\s+(Cloud|LLC)|Microsoft|Azure|DigitalOcean|Vultr|Choopa|Linode|Akamai|Cloudflare|Hetzner|OVH|Oracle|Alibaba|Aliyun|Tencent|Huawei\s+Cloud|DMIT|Bandwagon|IT7|M247|DataCamp|LeaseWeb|Contabo|G-?Core|Packethub|Psychz|Sharktech|QuadraNet|FranTech|ColoCrossing|RackNerd|Misaka|xTom|Hosting|Datacenter|Data\s*Center|VPS|Cloud\s+Computing/i;
+  /Zenlayer|SpeedyCloud|Amazon|AWS|Google\s+(Cloud|LLC)|Microsoft|Azure|DigitalOcean|Vultr|Choopa|Linode|Akamai|Cloudflare|Fastly|Hetzner|OVH|Oracle|IBM\s+Cloud|SoftLayer|Alibaba|Aliyun|Tencent|Huawei\s+Cloud|ByteDance|Volcano\s*Engine|UCloud|Baidu|Kingsoft|NTT\s+(America|Communications|PC|Ltd|DATA|Global)|NTT-?GIN|Cogent|Hurricane\s+Electric|GTT\s+Communications|Arelion|Twelve99|Telia\s+Carrier|Zayo|AboveNet|Tata\s+Communications|PCCW\s+Global|Telstra\s+(Global|International)|GSL\s+Networks|\bRETN\b|DMIT|Bandwagon|IT7|M247|DataCamp|CDN77|LeaseWeb|Contabo|G-?Core|Packethub|Psychz|Sharktech|QuadraNet|FranTech|BuyVM|ColoCrossing|RackNerd|Misaka|xTom|V\.PS|Akari\s+Networks|Nearoute|Kirino|RFCHOST|Sakura\s+Internet|GMO\s+Internet|ConoHa|Kagoya|Xserver|LayerStack|Dataplugs|Cloudie|Multacom|Hivelocity|Voxility|Serverius|WorldStream|Clouvider|Scaleway|Online\s+S\.A\.S|IONOS|Hostinger|Kamatera|UpCloud|Equinix\s+Metal|Maxihost|Latitude\.sh|CeraNetworks|CloudCone|Spartan\s*Host|GreenCloud|VirMach|Hostodo|Hyonix|Tefincom|NordVPN|Private\s+Layer|Performive|31173\s+Services|Mullvad|NetActuate|Tzulo|Hosting|Datacenter|Data\s*Center|Cloud\s+Computing|Colocation|Dedicated\s+Server|\b(VPS|IDC)\b/i;
 
 export const CN_VENDOR_FONTS = [
   "MiSans",
@@ -236,7 +309,15 @@ export function formatUtcOffset(minutes) {
 }
 
 export function matchDatacenterByOrgOrAsn(asn, org) {
-  if (typeof asn === "number" && DATACENTER_ASNS.has(asn)) return true;
+  const numAsn =
+    typeof asn === "number"
+      ? asn
+      : typeof asn === "string"
+        ? Number(asn.trim().replace(/^AS/i, ""))
+        : NaN;
+  const hasValidAsn = Number.isInteger(numAsn) && numAsn > 0;
+  if (hasValidAsn && DATACENTER_ASNS.has(numAsn)) return true;
+  if (hasValidAsn && RESIDENTIAL_ISP_ASNS.has(numAsn)) return false;
   if (org && DATACENTER_ORG_RE.test(org)) return true;
   return false;
 }
@@ -319,31 +400,58 @@ export async function probeClaudeEdge(endpoint = OPTIONAL_CLAUDE_ENDPOINT, timeo
   }
 }
 
+function parseIpApiPayload(d) {
+  if (!d || !d.ip) return null;
+  let asn = null;
+  let org = "";
+  let asnType = "";
+  if (d.asn && typeof d.asn === "object") {
+    asn = d.asn.asn ?? null;
+    org = String(d.asn.org || "");
+    asnType = String(d.asn.type || "").toLowerCase();
+  } else if (typeof d.asn === "string") {
+    const m = d.asn.trim().match(/^AS(\d+)\s*(.*)$/i);
+    if (m) {
+      asn = Number(m[1]);
+      org = m[2].trim();
+    }
+  }
+  if (!org) {
+    if (d.company && typeof d.company === "object") {
+      org = String(d.company.name || "");
+      if (!asnType) asnType = String(d.company.type || "").toLowerCase();
+    } else if (typeof d.company === "string") {
+      org = d.company.trim();
+    }
+  }
+  const country = String(d.location?.country_code || d.country_code || "").toUpperCase();
+  const countryName = String(d.location?.country || d.country || "");
+  return {
+    ip: String(d.ip),
+    country: country || GEO_NAME_TO_COUNTRY[countryName.toLowerCase()] || "",
+    countryName,
+    city: String(d.location?.city || d.city || ""),
+    timezone: String(d.location?.timezone || d.timezone || ""),
+    asn,
+    org,
+    asnType,
+    isDatacenter: typeof d.is_datacenter === "boolean" ? d.is_datacenter : null,
+    isVpn: typeof d.is_vpn === "boolean" ? d.is_vpn : null,
+    isProxy: typeof d.is_proxy === "boolean" ? d.is_proxy : null,
+    isTor: typeof d.is_tor === "boolean" ? d.is_tor : null,
+    isAbuser: typeof d.is_abuser === "boolean" ? d.is_abuser : null,
+  };
+}
+
 export async function probeOverseasIp(timeoutMs = 6000) {
   let partial = null;
 
   try {
     const d = await fetchJsonWithTimeout("https://api.ipapi.is/", timeoutMs);
-    if (d && d.ip) {
-      const country = String(d.location?.country_code || "").toUpperCase();
-      partial = {
-        ok: true,
-        source: "ipapi.is",
-        ip: String(d.ip),
-        country,
-        countryName: String(d.location?.country || ""),
-        city: String(d.location?.city || ""),
-        timezone: String(d.location?.timezone || ""),
-        asn: d.asn?.asn ?? null,
-        org: String(d.asn?.org || d.company?.name || ""),
-        asnType: String(d.asn?.type || d.company?.type || "").toLowerCase(),
-        isDatacenter: typeof d.is_datacenter === "boolean" ? d.is_datacenter : null,
-        isVpn: typeof d.is_vpn === "boolean" ? d.is_vpn : null,
-        isProxy: typeof d.is_proxy === "boolean" ? d.is_proxy : null,
-        isTor: typeof d.is_tor === "boolean" ? d.is_tor : null,
-        isAbuser: typeof d.is_abuser === "boolean" ? d.is_abuser : null,
-      };
-      if (country) return partial;
+    const parsed = parseIpApiPayload(d);
+    if (parsed) {
+      partial = { ok: true, source: "ipapi.is", ...parsed };
+      if (parsed.country) return partial;
     }
   } catch {}
 
@@ -407,23 +515,8 @@ export async function lookupIpMetadata(ip, timeoutMs = 4500) {
   if (!cleanIp) return null;
   try {
     const d = await fetchJsonWithTimeout(`https://api.ipapi.is/?q=${encodeURIComponent(cleanIp)}`, timeoutMs);
-    if (d && d.ip) {
-      return {
-        ip: String(d.ip),
-        country: String(d.location?.country_code || "").toUpperCase(),
-        countryName: String(d.location?.country || ""),
-        city: String(d.location?.city || ""),
-        timezone: String(d.location?.timezone || ""),
-        asn: d.asn?.asn ?? null,
-        org: String(d.asn?.org || d.company?.name || ""),
-        asnType: String(d.asn?.type || d.company?.type || "").toLowerCase(),
-        isDatacenter: typeof d.is_datacenter === "boolean" ? d.is_datacenter : null,
-        isVpn: typeof d.is_vpn === "boolean" ? d.is_vpn : null,
-        isProxy: typeof d.is_proxy === "boolean" ? d.is_proxy : null,
-        isTor: typeof d.is_tor === "boolean" ? d.is_tor : null,
-        isAbuser: typeof d.is_abuser === "boolean" ? d.is_abuser : null,
-      };
-    }
+    const parsed = parseIpApiPayload(d);
+    if (parsed) return parsed;
   } catch {}
   try {
     const d = await fetchJsonWithTimeout(`https://get.geojs.io/v1/ip/geo/${encodeURIComponent(cleanIp)}.json`, timeoutMs);
@@ -523,6 +616,135 @@ export function probeWebRTC(timeoutMs = 3800) {
   });
 }
 
+const GEO_NAME_TO_COUNTRY = {
+  china: "CN",
+  "hong kong": "HK",
+  macao: "MO",
+  macau: "MO",
+  taiwan: "TW",
+  "united states": "US",
+  usa: "US",
+  japan: "JP",
+  singapore: "SG",
+  "united kingdom": "GB",
+  uk: "GB",
+  germany: "DE",
+  france: "FR",
+  netherlands: "NL",
+  canada: "CA",
+  australia: "AU",
+  "south korea": "KR",
+  "korea, republic of": "KR",
+  russia: "RU",
+  "russian federation": "RU",
+  belarus: "BY",
+  iran: "IR",
+  "north korea": "KP",
+  syria: "SY",
+  cuba: "CU",
+};
+
+export function parseEdnsGeo(geoText) {
+  const raw = String(geoText || "").trim();
+  if (!raw) return { country: "", countryName: "", org: "" };
+  const idx = raw.indexOf(" - ");
+  const countryName = (idx >= 0 ? raw.slice(0, idx) : raw).trim();
+  const org = (idx >= 0 ? raw.slice(idx + 3) : "").trim();
+  const country = GEO_NAME_TO_COUNTRY[countryName.toLowerCase()] || "";
+  return { country, countryName, org };
+}
+
+function randomHex(len = 32) {
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    const bytes = new Uint8Array(Math.ceil(len / 2));
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (b) => b.toString(16).padStart(2, "0"))
+      .join("")
+      .slice(0, len);
+  }
+  let out = "";
+  while (out.length < len) {
+    out += Math.floor(Math.random() * 0x100000000)
+      .toString(16)
+      .padStart(8, "0");
+  }
+  return out.slice(0, len);
+}
+
+/**
+ * 浏览器侧 DNS 泄露探测：
+ *   1. 主源 bash.ws：并行触发 3 个随机子域 DNS 解析，再拉取权威 NS 记录到的全部递归解析器（含国家与 ASN）。
+ *   2. 降级源 edns.ip-api.com：单次随机 32 位十六进制子域请求，直接返回出口递归 DNS IP 与归属地。
+ */
+export async function probeDnsLeak(timeoutMs = 5500) {
+  try {
+    const tid = String(1000000 + Math.floor(Math.random() * 8999999));
+    const pingTimeout = Math.min(2200, timeoutMs);
+    await Promise.allSettled(
+      [1, 2, 3].map(async (n) => {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), pingTimeout);
+        try {
+          await fetch(`https://${n}.${tid}.bash.ws/`, {
+            mode: "no-cors",
+            cache: "no-store",
+            credentials: "omit",
+            signal: ctrl.signal,
+          });
+        } catch {
+          // 即使 HTTPS 握手失败或被中断，浏览器发出的 DNS 查询已到达权威 NS
+        } finally {
+          clearTimeout(timer);
+        }
+      }),
+    );
+
+    await new Promise((r) => setTimeout(r, 180));
+    const list = await fetchJsonWithTimeout(`https://bash.ws/dnsleak/test/${tid}?json`, Math.min(3500, timeoutMs));
+    if (Array.isArray(list)) {
+      const seen = new Set();
+      const servers = [];
+      for (const item of list) {
+        if (item?.type !== "dns" || !item.ip || seen.has(item.ip)) continue;
+        seen.add(item.ip);
+        servers.push({
+          ip: String(item.ip),
+          country: String(item.country || "").toUpperCase(),
+          countryName: String(item.country_name || ""),
+          asn: String(item.asn || ""),
+          org: String(item.org || ""),
+        });
+      }
+      if (servers.length > 0) {
+        return { ok: true, source: "bash.ws", servers };
+      }
+    }
+  } catch {}
+
+  try {
+    const h32 = randomHex(32);
+    const data = await fetchJsonWithTimeout(`https://${h32}.edns.ip-api.com/json`, Math.min(4000, timeoutMs));
+    if (data?.dns?.ip) {
+      const parsed = parseEdnsGeo(data.dns.geo);
+      return {
+        ok: true,
+        source: "edns.ip-api.com",
+        servers: [
+          {
+            ip: String(data.dns.ip),
+            country: parsed.country,
+            countryName: parsed.countryName,
+            asn: "",
+            org: parsed.org,
+          },
+        ],
+      };
+    }
+  } catch {}
+
+  return { ok: false, source: "", servers: [] };
+}
+
 export async function probeClaudeTargets(timeoutMs = 5500) {
   const bust = Date.now();
   const tasks = CLAUDE_TARGETS.map(async (target) => {
@@ -616,6 +838,7 @@ export function evaluateCheck({
   overseas = null,
   claudeTrace = null,
   webrtc = null,
+  dns = null,
   claude = [],
   local = null,
 } = {}) {
@@ -668,16 +891,16 @@ export function evaluateCheck({
   let ipTypeLabel = "未知网络";
   const netTags = [];
 
-  // N1. 出口地区（权重 40）
+  // N1. 出口地区（权重 35）
   {
-    const weight = 40;
+    const weight = 35;
     let score = 0;
     let status = "ok";
     let value = "未获取到出口 IP";
     let detail = "核对当前出口是否位于 Anthropic 支持地区。";
 
     if (!activeNet || !exitCountry) {
-      score = 20;
+      score = 18;
       status = "warn";
       value = "海外出口超时";
       detail = "未能连上海外 IP 接口，请检查代理客户端是否已启动并接管浏览器流量。";
@@ -688,7 +911,7 @@ export function evaluateCheck({
         body: "海外 IP 接口响应超时。请确认代理客户端正常运行，且浏览器未绕过系统代理。",
       });
     } else if (BLOCKED_COUNTRIES.has(exitCountry)) {
-      score = 40;
+      score = 35;
       status = "err";
       value = `${countryLabel(exitCountry, activeNet.countryName)} · ${activeNet.ip}`;
       detail = "出口位于 Anthropic 限制地区，登录或使用 Claude 极易触发拦截与封号。";
@@ -721,9 +944,9 @@ export function evaluateCheck({
     });
   }
 
-  // N2. IP 类型与纯净度（权重 30）
+  // N2. IP 类型与纯净度（权重 25）
   {
-    const weight = 30;
+    const weight = 25;
     let score = 0;
     let status = "ok";
     let value = "未识别";
@@ -746,7 +969,7 @@ export function evaluateCheck({
       netTags.push({ label: "属性未知", tone: "info" });
     } else if (isTor || isAbuser || isProxy) {
       const flags = [isTor && "Tor 出口", isAbuser && "历史滥用", isProxy && "公开代理"].filter(Boolean);
-      score = 30;
+      score = 25;
       status = "err";
       ipTypeLabel = "高危代理";
       value = flags.join(" / ");
@@ -798,9 +1021,9 @@ export function evaluateCheck({
     });
   }
 
-  // N3. WebRTC 地址泄露（权重 18）
+  // N3. WebRTC 地址泄露（权重 16）
   {
-    const weight = 18;
+    const weight = 16;
     let score = 0;
     let status = "ok";
     let value = "待检测";
@@ -815,7 +1038,7 @@ export function evaluateCheck({
     } else {
       const exposedPublic = (webrtc.publicIps || []).filter((ip) => ip !== activeNet?.ip);
       if (exposedPublic.length > 0) {
-        score = 18;
+        score = 16;
         status = "err";
         value = `暴露公网 IP：${exposedPublic.slice(0, 2).join(", ")}`;
         detail = "WebRTC 暴露的公网地址与代理出口不一致，多由 IPv6 未走代理或 UDP 直连引起。";
@@ -826,13 +1049,13 @@ export function evaluateCheck({
           body: "在代理客户端开启 Tun 模式接管 UDP 和 IPv6，或在浏览器启用 uBlock Origin 的防 WebRTC 泄露选项。",
         });
       } else if ((webrtc.publicIps || []).length > 0 && BLOCKED_COUNTRIES.has(exitCountry)) {
-        score = 18;
+        score = 16;
         status = "err";
         value = `公网 IP：${webrtc.publicIps[0]}`;
         detail = "WebRTC 直接暴露了受限地区的公网地址。";
         netTags.push({ label: "WebRTC 泄露", tone: "err" });
       } else if ((webrtc.localIps || []).length > 0) {
-        score = 6;
+        score = 5;
         status = "warn";
         value = `内网可见：${webrtc.localIps[0]}`;
         detail = "公网地址未暴露，但局域网私有 IP 可见，建议开启浏览器 mDNS 匿名隐藏。";
@@ -864,9 +1087,69 @@ export function evaluateCheck({
     });
   }
 
-  // N4. Claude 域名连通性（权重 12）
+  // N4. DNS 泄露检测（权重 14）
   {
-    const weight = 12;
+    const weight = 14;
+    let score = 0;
+    let status = "ok";
+    let value = "待检测";
+    let detail = "通过随机子域名探针识别实际发出解析请求的递归 DNS 服务器归属地，排查本地宽带 DNS 泄露。";
+
+    const servers = dns?.ok && Array.isArray(dns.servers) ? dns.servers : [];
+    if (!dns) {
+      status = "info";
+    } else if (!dns.ok || servers.length === 0) {
+      status = "info";
+      value = "DNS 探测超时或被拦截";
+      detail = "未能拿到递归 DNS 回传。建议在代理客户端开启 Fake-IP 与 Tun 模式，确保域名走远程解析。";
+      netTags.push({ label: "DNS 未回传", tone: "info" });
+    } else {
+      const blockedServers = servers.filter((s) => BLOCKED_COUNTRIES.has(String(s.country || "").toUpperCase()));
+      if (blockedServers.length > 0) {
+        score = 14;
+        status = "err";
+        const blockedRegions = [...new Set(blockedServers.map((s) => countryLabel(s.country, s.countryName)))];
+        const sample = blockedServers
+          .slice(0, 2)
+          .map((s) => (s.org ? `${s.ip}（${s.org}）` : s.ip))
+          .join("、");
+        value = `检出受限地区 DNS：${blockedRegions.slice(0, 2).join(" / ")}（${blockedServers.length}/${servers.length}）`;
+        detail = `解析请求落入受限地区递归 DNS：${sample}。部分或全部域名解析绕过了代理，容易暴露真实地区。`;
+        netTags.push({ label: "DNS 泄露", tone: "err" });
+        fixes.push({
+          severity: "err",
+          title: "封堵本地 DNS 泄露",
+          body: "检出受限地区 DNS 解析器。请在代理客户端开启 Fake-IP 与 Tun 模式，将 claude.ai 与 anthropic.com 的 DNS 解析全部交给远程节点处理，避免回退到本地宽带 DNS 或 223.5.5.5。",
+        });
+      } else {
+        const regions = [
+          ...new Set(servers.map((s) => (s.country ? countryLabel(s.country, s.countryName) : s.countryName)).filter(Boolean)),
+        ];
+        const sample = servers
+          .slice(0, 2)
+          .map((s) => (s.org ? `${s.ip} · ${s.org}` : s.ip))
+          .join("；");
+        value = `${servers.length} 个海外解析器 · ${regions.slice(0, 2).join(" / ") || "支持地区"}`;
+        detail = `未检出受限地区递归 DNS（${sample}），域名解析已正常经由海外线路处理。`;
+        netTags.push({ label: "DNS 无泄露", tone: "ok" });
+      }
+    }
+
+    networkItems.push({
+      id: "dns_leak",
+      title: "DNS 泄露检测",
+      weight,
+      score,
+      status,
+      value,
+      detail,
+      badge: dns?.source || "",
+    });
+  }
+
+  // N5. Claude 域名连通性（权重 10）
+  {
+    const weight = 10;
     let score = 0;
     let status = "ok";
     let value = "未检测";
@@ -879,7 +1162,7 @@ export function evaluateCheck({
       const avgRtt = rtts.length ? Math.round(rtts.reduce((a, b) => a + b, 0) / rtts.length) : null;
 
       if (okCount === 0) {
-        score = 12;
+        score = 10;
         status = "err";
         value = `0/${claude.length} 可达`;
         detail = "3 个核心域名均未响应，当前代理链路无法连通 Anthropic 服务。";
@@ -890,7 +1173,7 @@ export function evaluateCheck({
           body: "将 DOMAIN-SUFFIX,claude.ai 与 DOMAIN-SUFFIX,anthropic.com 统一指向同一海外节点。",
         });
       } else if (okCount < claude.length) {
-        score = 6;
+        score = 5;
         status = "warn";
         value = `${okCount}/${claude.length} 可达（${failHosts.join(", ")} 异常）`;
         detail = "部分子域未能连通，常见原因是代理规则遗漏了 anthropic.com。";
@@ -911,6 +1194,7 @@ export function evaluateCheck({
       value,
       detail,
       targets: claude,
+      wide: true,
     });
   }
 
@@ -955,10 +1239,10 @@ export function evaluateCheck({
   const networkRiskLevel = networkRiskScore >= 50 ? "high" : networkRiskScore >= 18 ? "medium" : "low";
   const networkSummary =
     networkRiskLevel === "high"
-      ? "出口地区受限、命中高危代理段或存在 WebRTC 泄露，建议先调整节点后再登录 Claude。"
+      ? "出口地区受限、命中高危代理段或存在 WebRTC / DNS 泄露，建议先调整节点后再登录 Claude。"
       : networkRiskLevel === "medium"
         ? "出口地区符合要求，但归属云机房段或存在次要链路隐患，建议固定节点使用。"
-        : "出口位于支持地区，未命中云机房黑名单、公开代理或 WebRTC 泄露，网络环境干净。";
+        : "出口位于支持地区，未命中云机房黑名单、公开代理或 WebRTC / DNS 泄露，网络环境干净。";
 
   // ===================== 二、本地指纹风险（0–100，越低越安全，8 项独立拆解） =====================
   const localTz = local?.timezone || "";
@@ -1297,6 +1581,7 @@ export function evaluateCheck({
     claudeEdge,
     overseas,
     claudeTrace,
+    dns,
     activeNet,
     exitMode,
     exitModeLabel,
@@ -1326,7 +1611,7 @@ export function buildEnvCheckAiPrompt(result, { url = "", compact = false } = {}
 
   lines.push("", "【命中的风险项】");
   if (netHits.length === 0 && localHits.length === 0) {
-    lines.push("- 当前未命中明显风险项（网络与本地指纹均为 0 分）。请帮我检查还有哪些网页端测不到的盲区（例如 DNS 泄露、多账号 Cookie 隔离、支付卡区匹配）。");
+    lines.push("- 当前未命中明显风险项（网络与本地指纹均为 0 分）。请帮我检查还有哪些网页端测不到的盲区（例如多账号 Cookie 隔离、支付卡区匹配、Claude Code 终端代理一致性）。");
   } else {
     for (const it of netHits) {
       lines.push(`- [网络 +${it.score}] ${it.title}：${it.value}${compact ? "" : `（${it.detail}）`}`);

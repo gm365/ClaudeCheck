@@ -13,6 +13,7 @@ import {
   isPrivateIp,
   matchDatacenterByOrgOrAsn,
   parseCloudflareTrace,
+  parseEdnsGeo,
   timezoneOffsetMinutes,
 } from "../src/lib/env-check.js";
 import worker, { handleEnvCheck } from "../worker/index.js";
@@ -52,6 +53,11 @@ test("network and local scoring weights each sum to 100 independently", () => {
       isAbuser: false,
     },
     webrtc: { supported: true, blocked: false, publicIps: [], localIps: [], mdnsCount: 1, srflxCount: 0 },
+    dns: {
+      ok: true,
+      source: "bash.ws",
+      servers: [{ ip: "172.253.6.16", country: "US", countryName: "USA", asn: "AS15169 Google LLC", org: "Google LLC" }],
+    },
     claude: CLAUDE_TARGETS.map((t) => ({ ...t, ok: true, rttMs: 120 })),
     local: {
       timezone: "America/Los_Angeles",
@@ -123,8 +129,23 @@ test("same-origin edge containing claude automatically activates claude_keyword 
   assert.equal(res.exitMode, "claude_keyword");
   assert.equal(res.activeNet.ip, "154.17.2.9");
   assert.equal(res.activeNet.country, "JP");
-  // Zenlayer detected via ASN/org fallback even when api flags are absent
+  // Zenlayer and expanded Tier-1 / APAC / VPS / VPN ASNs detected via ASN/org fallback without false positives on residential ISPs
   assert.equal(matchDatacenterByOrgOrAsn(21859, "Zenlayer Inc"), true);
+  assert.equal(matchDatacenterByOrgOrAsn(2914, "NTT America, Inc."), true);
+  assert.equal(matchDatacenterByOrgOrAsn(null, "NTT America, Inc."), true);
+  assert.equal(matchDatacenterByOrgOrAsn(174, "Cogent Communications"), true);
+  assert.equal(matchDatacenterByOrgOrAsn(6939, "Hurricane Electric LLC"), true);
+  assert.equal(matchDatacenterByOrgOrAsn(3491, "PCCW Global, Inc."), true);
+  assert.equal(matchDatacenterByOrgOrAsn(7684, "SAKURA Internet Inc."), true);
+  assert.equal(matchDatacenterByOrgOrAsn(7506, "GMO Internet Group, Inc."), true);
+  assert.equal(matchDatacenterByOrgOrAsn(138997, "Akari Networks"), true);
+  assert.equal(matchDatacenterByOrgOrAsn("AS136907", "HUAWEI CLOUDS"), true);
+  assert.equal(matchDatacenterByOrgOrAsn(4713, "NTT Communications / OCN"), false);
+  assert.equal(matchDatacenterByOrgOrAsn(9605, "NTT DOCOMO, INC."), false);
+  assert.equal(matchDatacenterByOrgOrAsn(4760, "PCCW Limited"), false);
+  assert.equal(matchDatacenterByOrgOrAsn(1221, "Telstra Limited"), false);
+  assert.equal(matchDatacenterByOrgOrAsn(7922, "Comcast Cable Communications"), false);
+  assert.equal(matchDatacenterByOrgOrAsn(11232, "Midcontinent Communications (MIDCO)"), false);
   const ipPurity = res.network.items.find((x) => x.id === "ip_purity");
   assert.equal(ipPurity.score, 18);
   assert.equal(ipPurity.status, "warn");
@@ -143,6 +164,26 @@ test("parseCloudflareTrace extracts ip, loc, colo and host", () => {
   assert.equal(parsed.colo, "SJC");
   assert.equal(parsed.host, "claude.ai");
   assert.equal(parseCloudflareTrace("invalid text"), null);
+});
+
+test("DNS leak detection parses edns geo and scores restricted DNS resolvers", () => {
+  assert.deepEqual(parseEdnsGeo("China - CHINANET Yunnan province IDC1 network"), {
+    country: "CN",
+    countryName: "China",
+    org: "CHINANET Yunnan province IDC1 network",
+  });
+  const res = evaluateCheck({
+    overseas: { ok: true, source: "ipapi.is", ip: "203.0.113.10", country: "US", timezone: "America/Los_Angeles", isDatacenter: false },
+    dns: {
+      ok: true,
+      source: "edns.ip-api.com",
+      servers: [{ ip: "182.242.140.60", country: "CN", countryName: "China", asn: "", org: "CHINANET" }],
+    },
+  });
+  const dnsItem = res.network.items.find((x) => x.id === "dns_leak");
+  assert.equal(dnsItem.score, 14);
+  assert.equal(dnsItem.status, "err");
+  assert.ok(res.fixes.some((f) => f.title.includes("DNS")));
 });
 
 test("buildEnvCheckAiPrompt and envCheckAskPlan format summary cleanly", () => {
