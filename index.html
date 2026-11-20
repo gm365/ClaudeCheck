@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Claude IP 检测与封号风险自查 · 出口纯净度、时区与指纹检测</title>
+    <meta
+      name="description"
+      content="开源、可一键部署到 Cloudflare Workers 的 Claude 访问环境检测工具：排查代理出口地区、云机房 IP、WebRTC 泄露、出口与本机时区差及 8 项本地指纹，并支持交给 AI 生成加固方案。"
+    />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("cc-theme");
+          var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
