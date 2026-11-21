@@ -385,8 +385,8 @@
       </div>
 
       <div class="stage-body">
-        <h1 class="check-title">Claude 环境风险检测</h1>
-        <p class="check-lead">排查当前出口 IP、时区与本机指纹</p>
+        <h1 class="check-title">Claude 封号风险与 IP 纯净度检测</h1>
+        <p class="check-lead">一键排查出口 IP 机房属性、DNS / WebRTC 泄露、时区差与 8 项本机指纹</p>
 
         <div class="ready-cta-wrap">
           <button
@@ -431,86 +431,86 @@
   {:else}
     <header class="check-hero reveal" style:--i="0">
       <div class="check-hero-main">
-        <h1 class="check-title">Claude 环境风险检测</h1>
-        <p class="check-lead">排查当前出口 IP、时区与本机指纹</p>
+        <h1 class="check-title">Claude 封号风险与 IP 纯净度检测</h1>
+        <p class="check-lead">一键排查出口 IP 机房属性、DNS / WebRTC 泄露、时区差与 8 项本机指纹</p>
+      </div>
 
-        <div class="check-hero-foot">
-          <div class="check-actions">
+      <div class="check-hero-side">
+        <div class="check-actions">
+          <button
+            type="button"
+            class="check-btn-cta"
+            class:is-quiet={hasRisk}
+            onclick={runScan}
+            disabled={!ready || scanning}
+          >
+            {#if scanning}
+              <RefreshCw size={16} class="is-spin" aria-hidden="true" />
+              <span>正在检测…</span>
+            {:else}
+              <RefreshCw size={16} aria-hidden="true" />
+              <span>重新检测</span>
+            {/if}
+          </button>
+
+          <div class="check-ask" bind:this={aiRoot}>
             <button
+              bind:this={aiBtn}
               type="button"
-              class="check-btn-cta"
-              class:is-quiet={hasRisk}
-              onclick={runScan}
-              disabled={!ready || scanning}
+              class="check-ask-btn"
+              class:is-lead={hasRisk}
+              disabled={scanning}
+              title="把命中项整理成提示词，请 AI 帮你制定系统性加固步骤"
+              aria-expanded={aiOpen}
+              aria-haspopup="menu"
+              aria-controls={aiOpen ? aiMenuId : undefined}
+              onclick={() => toggleAi()}
+              onkeydown={(e) => {
+                if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !aiOpen) {
+                  e.preventDefault();
+                  toggleAi(e.key === "ArrowUp");
+                }
+              }}
             >
-              {#if scanning}
-                <RefreshCw size={16} class="is-spin" aria-hidden="true" />
-                <span>正在检测…</span>
-              {:else}
-                <RefreshCw size={16} aria-hidden="true" />
-                <span>重新检测</span>
-              {/if}
+              <Sparkles size={15} aria-hidden="true" />
+              <span>问 AI 加固</span>
             </button>
 
-            <div class="check-ask" bind:this={aiRoot}>
-              <button
-                bind:this={aiBtn}
-                type="button"
-                class="check-ask-btn"
-                class:is-lead={hasRisk}
-                disabled={scanning}
-                title="把命中项整理成提示词，请 AI 帮你制定系统性加固步骤"
-                aria-expanded={aiOpen}
-                aria-haspopup="menu"
-                aria-controls={aiOpen ? aiMenuId : undefined}
-                onclick={() => toggleAi()}
-                onkeydown={(e) => {
-                  if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !aiOpen) {
-                    e.preventDefault();
-                    toggleAi(e.key === "ArrowUp");
-                  }
-                }}
+            {#if aiOpen}
+              <div
+                id={aiMenuId}
+                class="check-ask-menu"
+                role="menu"
+                tabindex="-1"
+                aria-label="交给 AI 制定加固方案"
+                bind:this={aiList}
+                onkeydown={onAiMenuKey}
               >
-                <Sparkles size={15} aria-hidden="true" />
-                <span>问 AI 加固</span>
-              </button>
-
-              {#if aiOpen}
-                <div
-                  id={aiMenuId}
-                  class="check-ask-menu"
-                  role="menu"
-                  tabindex="-1"
-                  aria-label="交给 AI 制定加固方案"
-                  bind:this={aiList}
-                  onkeydown={onAiMenuKey}
-                >
-                  <p class="check-ask-note">把本次命中的网络与本地风险项整理成提示词，请 AI 给出针对性加固方案。</p>
-                  <button type="button" class="check-ask-item" role="menuitem" onclick={() => runAskAi(null)}>
-                    <Copy size={14} aria-hidden="true" />
-                    <span>复制加固提示词</span>
+                <p class="check-ask-note">把本次命中的网络与本地风险项整理成提示词，请 AI 给出针对性加固方案。</p>
+                <button type="button" class="check-ask-item" role="menuitem" onclick={() => runAskAi(null)}>
+                  <Copy size={14} aria-hidden="true" />
+                  <span>复制加固提示词</span>
+                </button>
+                {#each AI_TARGETS as target (target.id)}
+                  <button type="button" class="check-ask-item" role="menuitem" onclick={() => runAskAi(target)}>
+                    <ExternalLink size={14} aria-hidden="true" />
+                    <span>{target.label}</span>
+                    <span class="check-ask-sub">{target.fill ? "自动填入" : "复制后打开"}</span>
                   </button>
-                  {#each AI_TARGETS as target (target.id)}
-                    <button type="button" class="check-ask-item" role="menuitem" onclick={() => runAskAi(target)}>
-                      <ExternalLink size={14} aria-hidden="true" />
-                      <span>{target.label}</span>
-                      <span class="check-ask-sub">{target.fill ? "自动填入" : "复制后打开"}</span>
-                    </button>
-                  {/each}
-                  {#if aiDone}
-                    <p class="check-ask-done" role="status"><Check size={13} aria-hidden="true" />{aiDone}</p>
-                  {/if}
-                  <p class="check-ask-foot">提示词仅包含本次检测摘要，发送前可按需编辑。</p>
-                </div>
-              {/if}
-            </div>
+                {/each}
+                {#if aiDone}
+                  <p class="check-ask-done" role="status"><Check size={13} aria-hidden="true" />{aiDone}</p>
+                {/if}
+                <p class="check-ask-foot">提示词仅包含本次检测摘要，发送前可按需编辑。</p>
+              </div>
+            {/if}
           </div>
-
-          <p class="check-privacy">
-            <Lock size={13} aria-hidden="true" />
-            <span>本地运算，结果仅当前页面可见</span>
-          </p>
         </div>
+
+        <p class="check-privacy">
+          <Lock size={13} aria-hidden="true" />
+          <span>本地运算，结果仅当前页面可见</span>
+        </p>
       </div>
     </header>
 
@@ -951,21 +951,28 @@
 
   /* ---------- Hero（检测结果顶栏） ---------- */
   .check-hero {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px 24px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--ck-edge);
   }
 
   .check-hero-main {
+    flex: 1 1 360px;
     min-width: 0;
   }
 
-  .check-hero-foot {
+  .check-hero-side {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px 16px;
-    margin-top: 16px;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
   }
 
   .check-title {
@@ -1206,12 +1213,13 @@
 
   .check-ask-menu {
     position: absolute;
-    z-index: 30;
+    z-index: 40;
     top: calc(100% + 8px);
-    left: 0;
+    right: 0;
+    left: auto;
     width: min(320px, calc(100vw - 32px));
     padding: 10px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-strong);
     border-radius: var(--r-lg);
     background: var(--surface);
     box-shadow: var(--ck-hi), var(--shadow-pop);
@@ -2399,6 +2407,11 @@
   }
 
   @media (max-width: 860px) {
+    .check-hero-side {
+      align-items: flex-start;
+      width: 100%;
+    }
+
     .dual-board,
     .signal-grid {
       grid-template-columns: minmax(0, 1fr);
