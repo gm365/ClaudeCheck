@@ -166,14 +166,6 @@ export function renderEnvCheckCard(
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
 
-  // 顶部细品牌亮线
-  const barGrad = ctx.createLinearGradient(0, 0, W, 0);
-  barGrad.addColorStop(0, "#0f6b5c");
-  barGrad.addColorStop(0.5, "#2eb89e");
-  barGrad.addColorStop(1, "#0f6b5c");
-  ctx.fillStyle = barGrad;
-  ctx.fillRect(0, 0, W, 4);
-
   // 2. 顶部标题区
   const padX = 48;
   ctx.font = `700 30px ${FONT_SANS}`;
