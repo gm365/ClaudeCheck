@@ -8,6 +8,7 @@
     Clock,
     Compass,
     Copy,
+    Download,
     ExternalLink,
     Globe,
     Languages,
@@ -36,6 +37,8 @@
     envCheckAskPlan,
     evaluateCheck,
     lookupIpMetadata,
+    maskIp,
+    maskIpsInText,
     parseCloudflareTrace,
     probeClaudeEdge,
     probeClaudeTargets,
@@ -44,6 +47,7 @@
     probeSiteEdge,
     probeWebRTC,
   } from "./env-check.js";
+  import { downloadEnvCheckCard } from "./env-check-share.js";
 
   const ITEM_ICONS = {
     overseas_region: Globe,
@@ -79,6 +83,9 @@
   let checkedAt = $state("");
   let copiedCurl = $state(false);
   let copiedCli = $state(false);
+  let downloading = $state(false);
+  let downloadDone = $state(false);
+  let maskMode = $state(false);
   let result = $state(INITIAL_STATE);
 
   let lastSignals = $state({ edge: null, claudeEdge: null, overseas: null, webrtc: null, dns: null, claude: [], local: null });
@@ -107,6 +114,14 @@
 
   function toneOf(item) {
     return settled ? item.status : "info";
+  }
+
+  function fmtIp(ip) {
+    return maskMode ? maskIp(ip) : ip;
+  }
+
+  function fmtText(text) {
+    return maskMode ? maskIpsInText(text) : text;
   }
 
   async function openAiFromPlaybook(e) {
@@ -307,6 +322,27 @@
     }
   }
 
+  async function saveShareCard() {
+    if (!settled || downloading) return;
+    downloading = true;
+    try {
+      const host = typeof location !== "undefined" && location.host ? location.host : "github.com/gm365/ClaudeCheck";
+      const ok = await downloadEnvCheckCard(result, {
+        checkedAt,
+        brandLabel: "ClaudeCheck",
+        siteUrl: host,
+      });
+      if (ok) {
+        downloadDone = true;
+        setTimeout(() => {
+          downloadDone = false;
+        }, 2200);
+      }
+    } finally {
+      downloading = false;
+    }
+  }
+
   function runAskAi(target) {
     if (!scannedOnce) return;
     const pageUrl = typeof location !== "undefined" ? `${location.origin}${location.pathname}` : "";
@@ -351,6 +387,10 @@
 
   onMount(() => {
     ready = true;
+    try {
+      const sp = new URLSearchParams(location.search);
+      maskMode = sp.get("mask") === "1" || sp.get("privacy") === "1";
+    } catch {}
     const close = (e) => {
       if (aiOpen && aiRoot && !aiRoot.contains(e.target)) aiOpen = false;
     };
@@ -450,6 +490,22 @@
             {:else}
               <RefreshCw size={16} aria-hidden="true" />
               <span>重新检测</span>
+            {/if}
+          </button>
+
+          <button
+            type="button"
+            class="check-ask-btn"
+            onclick={saveShareCard}
+            disabled={!settled || downloading}
+            title="生成脱敏结果图（1200×630 PNG），可直接分享到 X / Twitter 或群聊"
+          >
+            {#if downloadDone}
+              <Check size={15} aria-hidden="true" />
+              <span>已保存</span>
+            {:else}
+              <Download size={15} aria-hidden="true" />
+              <span>{downloading ? "生成中…" : "保存分享图"}</span>
             {/if}
           </button>
 
@@ -565,7 +621,7 @@
         <dl class="ip-meta-grid">
           <div>
             <dt>出口 IP</dt>
-            <dd class="is-mono">{scanning ? "检测中…" : result.activeNet?.ip || "未获取到"}</dd>
+            <dd class="is-mono">{scanning ? "检测中…" : fmtIp(result.activeNet?.ip) || "未获取到"}</dd>
           </div>
           <div>
             <dt>位置</dt>
@@ -695,7 +751,7 @@
           <span class="trace-summary-title">手动核验 <code>claude.ai</code> 出口</span>
           <span class="trace-summary-hint">
             {#if claudeTrace}
-              已按 {claudeTrace.ip}（{countryLabel(claudeTrace.country)}）校准
+              已按 {fmtIp(claudeTrace.ip)}（{countryLabel(claudeTrace.country)}）校准
             {:else if result.exitMode === "claude_keyword"}
               已通过 {result.activeNet?.host || result.activeNet?.source} 自动识别 Claude 分流出口 · 需要手动覆盖可展开
             {:else}
@@ -743,7 +799,7 @@
             <span class="trace-err" role="alert">{traceError}</span>
           {:else if claudeTrace}
             <span class="trace-ok">
-              已切换为 claude.ai 出口：{claudeTrace.ip}（{countryLabel(claudeTrace.country)}{claudeTrace.colo ? ` · ${claudeTrace.colo}` : ""}）
+              已切换为 claude.ai 出口：{fmtIp(claudeTrace.ip)}（{countryLabel(claudeTrace.country)}{claudeTrace.colo ? ` · ${claudeTrace.colo}` : ""}）
             </span>
           {/if}
         </div>
@@ -764,8 +820,8 @@
               {/if}
               <span class="callout-view">{scanning ? "…" : "视图"}</span>
             </div>
-            <div class="callout-value">{scanning ? "检测中…" : item.value}</div>
-            <p class="callout-detail">{item.detail}</p>
+            <div class="callout-value">{scanning ? "检测中…" : fmtText(item.value)}</div>
+            <p class="callout-detail">{fmtText(item.detail)}</p>
           </div>
         </li>
       {:else}
@@ -794,8 +850,8 @@
             </span>
           </div>
 
-          <div class="card-value-bar">{scanning ? "检测中…" : item.value}</div>
-          <p class="signal-detail">{item.detail}</p>
+          <div class="card-value-bar">{scanning ? "检测中…" : fmtText(item.value)}</div>
+          <p class="signal-detail">{fmtText(item.detail)}</p>
 
           {#if item.targets?.length}
             <div class="target-grid">

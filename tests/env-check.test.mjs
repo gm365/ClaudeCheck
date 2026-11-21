@@ -11,6 +11,8 @@ import {
   envCheckAskPlan,
   evaluateCheck,
   isPrivateIp,
+  maskIp,
+  maskIpsInText,
   matchDatacenterByOrgOrAsn,
   parseCloudflareTrace,
   parseEdnsGeo,
@@ -184,6 +186,15 @@ test("DNS leak detection parses edns geo and scores restricted DNS resolvers", (
   assert.equal(dnsItem.score, 14);
   assert.equal(dnsItem.status, "err");
   assert.ok(res.fixes.some((f) => f.title.includes("DNS")));
+});
+
+test("maskIp and maskIpsInText redact IPv4/IPv6 suffixes for share cards and ?mask=1", () => {
+  assert.equal(maskIp("192.220.8.216"), "192.220.*.*");
+  assert.equal(maskIp("2a10:e184:9c9b:1206::1"), "2a10:e184:*:*");
+  assert.equal(
+    maskIpsInText("Exit 192.220.8.216 / DNS 182.242.140.60"),
+    "Exit 192.220.*.* / DNS 182.242.*.*",
+  );
 });
 
 test("buildEnvCheckAiPrompt and envCheckAskPlan format summary cleanly", () => {

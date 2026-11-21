@@ -244,6 +244,32 @@ export function isPrivateIp(ip) {
   return false;
 }
 
+/**
+ * 隐藏 IP 后半段用于分享图或录屏模式（?mask=1）：
+ *   - IPv4：192.220.8.216 → 192.220.*.*
+ *   - IPv6：2a10:e184:9c9b::1 → 2a10:e184:*:*
+ */
+export function maskIp(ip) {
+  const s = String(ip || "").trim();
+  if (!s) return "";
+  const v4 = s.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (v4) return `${v4[1]}.${v4[2]}.*.*`;
+  if (s.includes(":")) {
+    const parts = s.split(":").filter((p) => p.length > 0);
+    if (parts.length >= 2) return `${parts[0]}:${parts[1]}:*:*`;
+    if (parts.length === 1) return `${parts[0]}:*:*`;
+  }
+  return s;
+}
+
+export function maskIpsInText(text) {
+  const s = String(text ?? "");
+  if (!s) return s;
+  return s
+    .replace(/\b(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\b/g, (m) => maskIp(m))
+    .replace(/\b([0-9a-fA-F]{1,4}:[0-9a-fA-F:]{2,}[0-9a-fA-F])\b/g, (m) => (m.split(":").length >= 3 ? maskIp(m) : m));
+}
+
 export function parseCloudflareTrace(text) {
   const raw = String(text || "").trim();
   if (!raw) return null;
